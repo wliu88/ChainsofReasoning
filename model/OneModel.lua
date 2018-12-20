@@ -9,14 +9,14 @@ require 'nn'
 require 'optim'
 require 'rnn'
 --Dependencies from this package
-require 'MyOptimizer'
-require 'OptimizerCallback'
-require 'BatcherFileList'
-require 'FeatureEmbedding'
-require 'MapReduce'
-require 'TopK'
-require 'Print'
-require 'LogSumExp'
+require 'model.optimizer.MyOptimizer'
+require 'model.optimizer.OptimizerCallback'
+require 'model.batcher.BatcherFileList'
+require 'model.net.FeatureEmbedding'
+require 'model.module.MapReduce'
+require 'model.module.TopK'
+require 'model.module.Print'
+require 'model.module.LogSumExp'
 
 cmd = torch.CmdLine()
 -- cmd:option('-trainList','','torch format train file list')
@@ -106,7 +106,8 @@ local  includeEntity = params.includeEntity == 1
 local isTopK = params.topK == 1
 local k = params.K
 local useGradClip = params.useGradClip == 1
---local seed = 12345
+-- TempChange
+local seed = 12345
 local createExptDir = params.createExptDir == 1
 local useReLU = params.useReLU == 1
 local rnnInitialization = params.rnnInitialization == 1
@@ -114,7 +115,8 @@ local labelDimension = 46
 local numLayers = params.numLayers
 local useDropout = params.useDropout
 local dropout = params.dropout
---torch.manualSeed(seed)
+-- TempChange
+torch.manualSeed(seed)
 
 local exptDir = nil
 local configFileName = nil
@@ -196,6 +198,7 @@ local hidden2hiddens = {} -- table to store the params so that I can initialize 
 
 -----Define the Architecture-----
 if(not loadModel) then
+	print("model is not loaded")
 	predictor_net = nn.Sequential()
 	-- now create the embedding layer
 	if includeEntityTypes and includeEntity then
@@ -214,6 +217,8 @@ if(not loadModel) then
 	assert(embeddingLayer ~= nil)
 	assert(totalInputEmbeddingDim ~= 0)
 
+	-- Creates a module that takes a Tensor as input and outputs several tables, splitting the Tensor along the
+	-- specified dimension. Here the split dimension is 3.
 	predictor_net:add(nn.SplitTable(3)):add(embeddingLayer)
 	local nonLinear = nil
 	if useReLU then
@@ -225,7 +230,6 @@ if(not loadModel) then
 	input2hidden = function() return nn.Linear(totalInputEmbeddingDim, rnnHidSize) end
 	hidden2hidden = function() return nn.Linear(rnnHidSize, rnnHidSize) end
 
-	
 	if(params.rnnType == "lstm") then 
 				rnn = function() return nn.FastLSTM(totalInputEmbeddingDim, rnnHidSize) end --todo: add depth
 	elseif (params.rnnType == "gru") then
@@ -245,6 +249,7 @@ if(not loadModel) then
 				   :add(nn.CAddTable())
 				   :add(nonLinear())
 				rm = nn.MaskZero(rm,1) --to take care of padding
+				-- nn.Recurrence(recurrentModule, outputSize, nInputDim, [rho])
 				return nn.Recurrence(rm, rnnHidSize, 1)
 			else
 				local i2hNet = nn.Sequential():add(nn.Dropout(params.dropout)):add(input2hidden)

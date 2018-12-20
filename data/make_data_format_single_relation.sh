@@ -6,11 +6,11 @@ if [[ $host == ip* ]]; then
 	python_exec='/home/ubuntu/anaconda/bin/python'
 	ec2_instance=1
 else
-	mainDir='/home/rajarshi/ChainsofReasoning'
-	python_exec='/share/apps/python/bin/python'
+	mainDir='/home/weiyu/Research/Path_Baselines/CVSM/ChainsofReasoning'
+	python_exec='/usr/bin/python'      #'/share/apps/python/bin/python'
 	ec2_instance=0
 fi
-mainDir='/home/rajarshi/ChainsofReasoning'
+mainDir='/home/weiyu/Research/Path_Baselines/CVSM/ChainsofReasoning'
 preprocessingDir=${mainDir}/'data'
 
 relation_dir=$1
@@ -35,6 +35,8 @@ do
 	echo "converting $dataset to torch files"	
 	for ff in $dataDir/*.int 
 	do
+	    echo 'here'
+	    echo $ff
 		out=`echo $ff | sed 's|.int$||'`.torch
 		$int2torch -input $ff -output $out -tokenLabels 0 -tokenFeatures 1 -addOne 1 #convert to torch format
 		if [ $? -ne 0 ]
@@ -43,7 +45,8 @@ do
 			echo 'Failed for relation '$f 1>&2
 			continue #continue to the next one
 		fi
-		echo $out >>  ${out_dir}/${dataset}.list		
+		relative_out=`echo $out | cut -d '/' -f 4-5`
+		echo $relative_out >>  ${out_dir}/${dataset}.list
 		echo ${out}
 	done
 done

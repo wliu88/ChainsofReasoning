@@ -27,6 +27,7 @@ For example you can run,
 cd data
 /bin/bash make_data_format.sh examples/data_small_input examples/data_small_output
 ```
+It's important to not put / after directory name.
 
 ### Model
 To start training, first checkout [run_scripts/config.sh](run_scripts/config.sh). This defines all the hyperparams and other inputs to the network. After specifying model parameters, to start training run,

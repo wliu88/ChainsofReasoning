@@ -2,8 +2,9 @@
 package.path = package.path ..';../?.lua'
 require 'BatcherFileList'
 
-
-local fileList = '/iesl/local/rajarshi/data_full_max_length_8_small//combined_train_list/train.list'
+-- / after the last directory is needed
+local fileList = '/home/weiyu/Research/Path_Baselines/CVSM/ChainsofReasoning/data/examples/data_small_output/_aviation_airport_serves/'
+--'/iesl/local/rajarshi/data_full_max_length_8_small//combined_train_list/train.list'
 
 batchSize = 128
 shuffle = true
@@ -12,6 +13,7 @@ maxBatches = 250
 local count = 0
 local batcherFileList = BatcherFileList(fileList, batchSize, shuffle, maxBatches, useCuda)
 local test_counter = 0
+print("initialization successed")
 -----see if getBatch() works--------------
 local labels, data, size, classId = batcherFileList:getBatch()
 count = count + 1

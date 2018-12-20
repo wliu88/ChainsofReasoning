@@ -5,6 +5,7 @@ function  Batcher:__init(filePath, batchSize, shuffle)
 	print(filePath)
 	local loadedData = torch.load(filePath)
 	print(loadedData)
+
 	self.labels = loadedData.labels
 	self.data = loadedData.data
 	self.classId = loadedData.classId
@@ -39,6 +40,8 @@ function Batcher:getBatch()
 	if startIndex > dataSize then return nil end
 	local endIndex = math.min(startIndex+self.batchSize-1, dataSize)
 	local currBatchSize = endIndex - startIndex + 1
+	-- narrow(dim, index, size) returns a new Tensor which is a narrowed version of the current one: the dimension dim
+	-- is narrowed from index to index+size-1
 	local batchLabels = self.labels:narrow(1, startIndex, currBatchSize)
 	local batchData = self.data:narrow(1, startIndex, currBatchSize)
 	self.curStart = endIndex + 1

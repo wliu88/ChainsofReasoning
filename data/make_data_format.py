@@ -62,7 +62,7 @@ with gzip.open(label_vocab_file,'r') as label_vocab:
 	label2int = json.load(label_vocab)
 print 'Done reading label vocab'
 
-
+# this block of code gets the maximum length of paths
 max_length = -1
 train_files = ['/positive_matrix.tsv.translated','/negative_matrix.tsv.translated','/dev_matrix.tsv.translated','/test_matrix.tsv.translated'] ##dont change the ordering or remove entries. This is bad coding, I know.
 for counter,input_file in enumerate(train_files):
@@ -85,6 +85,7 @@ print(max_length)
 max_length = min(MAX_POSSIBLE_LENGTH_PATH,max_length)
 print 'Max length is '+str(max_length)
 
+# length is the maximum number of entity types for an entity
 def get_entity_types_in_order(entity_types, length):
 	assert(length <= len(entity_types))
 	type_int_list = []
@@ -93,6 +94,7 @@ def get_entity_types_in_order(entity_types, length):
 			type_int_list.append(entity_type_vocab[entity_type])
 		else:
 			type_int_list.append(entity_type_vocab['#UNK_ENTITY_TYPE'])
+	# sort in ascending order
 	type_int_list = sorted(type_int_list)
 	type_int_list = type_int_list[:length] #slice of that length
 	type_int_list = type_int_list[::-1] #reverse
@@ -137,7 +139,10 @@ def get_feature_vector(prev_entity, relation):
 	assert(len(type_feature_vector.split(','))==NUM_ENTITY_TYPES_SLOTS+2) #+2 - because of entity and entity_type
 	return type_feature_vector
 
-#form the feature for PAD token
+#form the feature for PAD token for a path using PAD token of entity, relation, entity type.
+# pad_feature = relation_pad_token (if only using relation
+# pad_feature = type_pad_token, type_pad_token, entity_pad_token, relation_pad_token (if not only using relation and
+# max number of entity type is 2.
 pad_feature=''
 
 if isOnlyRelation or getOnlyRelation:
@@ -276,6 +281,7 @@ for input_file_counter, input_file_name in enumerate(input_files):
 			output_line = output_line.strip()
 			if path_counter!=0:
 				output_file_with_pathlen = output_file+'.'+str(path_counter)+'.int'
+				# with write option a, all entity pairs with same length of paths will be write to the same file.
 				with open(output_file_with_pathlen,'a') as out:
 					out.write(output_line+'\n')
 			if entity_count % 100 == 0:

@@ -18,7 +18,9 @@ function MyOptimizer:__init(model,modules_to_update,criterion, trainingOptions,o
      self.trainingOptions = trainingOptions 
      self.totalError = torch.Tensor(1):zero()
      self.checkForConvergence = optInfo.converged ~= nil
+
      self.startIteration = optInfo.startIteration
+
      self.optInfo = optInfo
      self.minibatchsize = trainingOptions.minibatchsize
      self.rnnType = rnnType
@@ -107,13 +109,14 @@ function MyOptimizer:train(trainBatcher)
     trainBatcher:reset()
     local i = self.startIteration
     while i <= self.trainingOptions.numEpochs and (not self.checkForConvergence or not self.optInfo.converged) do
+        print("start iteration")
         self.totalError:zero()
         num_data = 0
         batch_counter = 0
         local gradientStepCounter = 0
         count = 0
         while(true) do
-            local minibatch_targets,minibatch_inputs,num, classId = trainBatcher:getBatch()
+            local minibatch_targets,minibatch_inputs, num, classId = trainBatcher:getBatch()
             if self.cuda then
                 self.model = nn.Sequential():add(self.origModel):add(nn.Select(2,classId)):cuda()
             else
@@ -133,7 +136,7 @@ function MyOptimizer:train(trainBatcher)
             gradientStepCounter = gradientStepCounter + 1
             if(gradientStepCounter % self.gradientStepCounter == 0) then
                 local avgError = self.totalError[1]/gradientStepCounter
-                print(string.format('Printing after %d gradient steps\navg loss in epoch = %f\n',self.gradientStepCounter, avgError))     
+                print(string.format('Printing after %d gradient steps\navg loss in epoch = %f\n',self.gradientStepCounter, avgError))
             end
             count = count + 1
             xlua.progress(count, totalBatches)
@@ -172,17 +175,22 @@ function MyOptimizer:trainBatch(inputs, targets)
     assert(inputs)
     assert(targets)
     --print(targets)
+    print("function: trainBatch")
     self:zeroPadTokens()
+    print("finished zeroPadTokens")
     local parameters = self.parameters
     local gradParameters = self.gradParameters
     local function fEval(x)
         if parameters ~= x then parameters:copy(x) end
         self.model:zeroGradParameters()
+        print("about to forward")
         local output = self.model:forward(inputs)
+        print("forward successful")
         local df_do = nil
-        local err = nil        
+        local err = nil
         err = self.criterion:forward(output, targets)
         df_do = self.criterion:backward(output, targets)
+        print("calculate criterion successful")
         self.model:backward(inputs, df_do)
         if self.regularize == 1 then
             if self.useGradClip then

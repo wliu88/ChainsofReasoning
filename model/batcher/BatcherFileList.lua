@@ -2,6 +2,8 @@ require 'Batcher'
 require 'os'
 local BatcherFileList = torch.class('BatcherFileList')
 
+-- each torch file is a batcher
+
 function BatcherFileList:__init(dataDir, batchSize, shuffle, maxBatches, useCuda)
 	fileList = dataDir .. 'train.list'
 	self.doShuffle = shuffle
@@ -112,6 +114,7 @@ end
 --gets all batches present in batchers[startIndex] to batchers[endIndex]
 function BatcherFileList:getBatchInternal()
 	if self.useCuda then
+		-- number of files in GPU since each file is a batcher
 		local numBatchesInGPU = self.endIndex - self.startIndex + 1
 		while self.numEmptyBatchers < numBatchesInGPU do
 			for i = self.currentIndex, self.endIndex do
@@ -140,6 +143,7 @@ function BatcherFileList:getBatchInternal()
 end
 
 function BatcherFileList:getBatch()
+	-- return nonthing if using cpu. Bug?
 	if self.useCuda then
 		while self.startIndex <= self.numBatchers do
 			local labels, data, classId = self:getBatchInternal()
