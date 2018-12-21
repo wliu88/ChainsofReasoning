@@ -9,14 +9,14 @@ require 'nn'
 require 'optim'
 require 'rnn'
 --Dependencies from this package
-require 'model.optimizer.MyOptimizer'
-require 'model.optimizer.OptimizerCallback'
-require 'model.batcher.BatcherFileList'
-require 'model.net.FeatureEmbedding'
-require 'model.module.MapReduce'
-require 'model.module.TopK'
-require 'model.module.Print'
-require 'model.module.LogSumExp'
+require 'MyOptimizer'
+require 'OptimizerCallback'
+require 'BatcherFileList'
+require 'FeatureEmbedding'
+require 'MapReduce'
+require 'TopK'
+require 'Print'
+require 'LogSumExp'
 
 cmd = torch.CmdLine()
 -- cmd:option('-trainList','','torch format train file list')
@@ -220,6 +220,7 @@ if(not loadModel) then
 	-- Creates a module that takes a Tensor as input and outputs several tables, splitting the Tensor along the
 	-- specified dimension. Here the split dimension is 3.
 	predictor_net:add(nn.SplitTable(3)):add(embeddingLayer)
+
 	local nonLinear = nil
 	if useReLU then
 		nonLinear = function() return nn.ReLU() end
@@ -230,10 +231,10 @@ if(not loadModel) then
 	input2hidden = function() return nn.Linear(totalInputEmbeddingDim, rnnHidSize) end
 	hidden2hidden = function() return nn.Linear(rnnHidSize, rnnHidSize) end
 
-	if(params.rnnType == "lstm") then 
+	if(params.rnnType == "lstm") then
 				rnn = function() return nn.FastLSTM(totalInputEmbeddingDim, rnnHidSize) end --todo: add depth
 	elseif (params.rnnType == "gru") then
-		rnn = function() return nn.GRU(totalInputEmbeddingDim, rnnHidSize) end 
+		rnn = function() return nn.GRU(totalInputEmbeddingDim, rnnHidSize) end
 	else
 		rnn = function()
 			-- recurrent module
@@ -265,7 +266,7 @@ if(not loadModel) then
 		end
 	end
 	predictor_net:add(nn.SplitTable(2))
-	
+
 	for l=1,params.numLayers do
 		rnn_layer = nn.Sequencer(rnn())
 		predictor_net:add(rnn_layer)
@@ -290,6 +291,7 @@ else
 	print('Reducer is max pool')
 	reducer = nn.Max(2)
 end
+--training_net = predictor_net
 training_net = nn.Sequential():add(nn.MapReduce(predictor_net,reducer)):add(nn.Sigmoid())
 
 -- test code here

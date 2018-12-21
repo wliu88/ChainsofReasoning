@@ -2,9 +2,10 @@
 local Batcher = torch.class('Batcher')
 
 function  Batcher:__init(filePath, batchSize, shuffle)
-	print(filePath)
+	--print("New Batcher")
+	--print(filePath)
 	local loadedData = torch.load(filePath)
-	print(loadedData)
+	--print(loadedData)
 
 	self.labels = loadedData.labels
 	self.data = loadedData.data

@@ -3,13 +3,13 @@ package.path = package.path ..';../?.lua'
 require 'BatcherFileList'
 
 -- / after the last directory is needed
-local fileList = '/home/weiyu/Research/Path_Baselines/CVSM/ChainsofReasoning/data/examples/data_small_output/_aviation_airport_serves/'
+local fileList = '/home/weiyu/Research/Path_Baselines/CVSM/ChainsofReasoning/data/examples/data_small_output/_music_artist_genre/'
 --'/iesl/local/rajarshi/data_full_max_length_8_small//combined_train_list/train.list'
 
-batchSize = 128
+batchSize = 1000
 shuffle = true
 useCuda = true
-maxBatches = 250
+maxBatches = 10
 local count = 0
 local batcherFileList = BatcherFileList(fileList, batchSize, shuffle, maxBatches, useCuda)
 local test_counter = 0
@@ -17,6 +17,7 @@ print("initialization successed")
 -----see if getBatch() works--------------
 local labels, data, size, classId = batcherFileList:getBatch()
 count = count + 1
+print("new batch")
 print(labels:size())
 print(data:size())
 print(classId)
@@ -26,17 +27,24 @@ test_counter = test_counter + 1
 
 
 -- ------call getBatch till it returns nil--------
+visited_batches = {}
 while(true)
 do
 	local  labels, data = batcherFileList:getBatch()
 	if labels == nil then
 		break
 	end
+	table.insert(visited_batches, data:size(2))
+	--print("new batch")
+	--print(labels:size())
+	--print(data:size())
+	--print(classId)
 	-- print(labels:size())
 	-- print(data:size())
 	count = count + 1
 	-- print(count)
 end
+print("visited batches of lengths", visited_batches)
 
 batcherFileList:reset()
 local count1 = 0

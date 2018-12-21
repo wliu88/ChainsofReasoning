@@ -4,6 +4,9 @@ local BatcherFileList = torch.class('BatcherFileList')
 
 -- each torch file is a batcher
 
+-- note: because endIndex = min(maxBatches, numBatches), if the number of batches meaning the number of files is larger
+--       than the maxBatches, in one iteration of batches from 1 to endIndex, some batches will not be visited.
+
 function BatcherFileList:__init(dataDir, batchSize, shuffle, maxBatches, useCuda)
 	fileList = dataDir .. 'train.list'
 	self.doShuffle = shuffle
@@ -42,6 +45,8 @@ function BatcherFileList:__init(dataDir, batchSize, shuffle, maxBatches, useCuda
 			self.index[i] = i
 		end
 	end
+	--print("self.index size", self.index:size())
+	--print("self.endIndex", self.endIndex)
 	self.currentIndex = 1
 	if useCuda then self:preallocateTensorToGPU() end
 end
@@ -118,7 +123,9 @@ function BatcherFileList:getBatchInternal()
 		local numBatchesInGPU = self.endIndex - self.startIndex + 1
 		while self.numEmptyBatchers < numBatchesInGPU do
 			for i = self.currentIndex, self.endIndex do
+				--print("i", i)
 				local batchIndex = self.index[i]
+				--print("batchIndex", batchIndex)
 				if self.emptyBatcherIndex[batchIndex] == nil then -- the batcher isnt empty
 					self.currentIndex = i + 1
 					return self.gpuLabelsTable[batchIndex], self.gpuDataTable[batchIndex], self.gpuClassIdTable[batchIndex]
@@ -143,6 +150,7 @@ function BatcherFileList:getBatchInternal()
 end
 
 function BatcherFileList:getBatch()
+	--print("endIndex", self.endIndex)
 	-- return nonthing if using cpu. Bug?
 	if self.useCuda then
 		while self.startIndex <= self.numBatchers do

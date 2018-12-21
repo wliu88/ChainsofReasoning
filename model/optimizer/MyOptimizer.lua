@@ -172,25 +172,26 @@ end
 -- function zeroPadTokenEmbeddings()
 
 function MyOptimizer:trainBatch(inputs, targets)
-    assert(inputs)
-    assert(targets)
-    --print(targets)
-    print("function: trainBatch")
+    --assert(inputs)
+    --assert(target)
+    --print("input size:", inputs:size())
+    --print("targets:", targets:size())
+    --print("function: trainBatch")
     self:zeroPadTokens()
-    print("finished zeroPadTokens")
+    --print("finished zeroPadTokens")
     local parameters = self.parameters
     local gradParameters = self.gradParameters
     local function fEval(x)
         if parameters ~= x then parameters:copy(x) end
         self.model:zeroGradParameters()
-        print("about to forward")
+        --print("about to forward")
         local output = self.model:forward(inputs)
-        print("forward successful")
+        --print("forward successful")
         local df_do = nil
         local err = nil
         err = self.criterion:forward(output, targets)
         df_do = self.criterion:backward(output, targets)
-        print("calculate criterion successful")
+        --print("calculate criterion successful")
         self.model:backward(inputs, df_do)
         if self.regularize == 1 then
             if self.useGradClip then
