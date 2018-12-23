@@ -117,6 +117,8 @@ function MyOptimizer:train(trainBatcher)
         count = 0
         while(true) do
             local minibatch_targets,minibatch_inputs, num, classId = trainBatcher:getBatch()
+            --print("minibatch input size", minibatch_inputs:size())
+            --print("classId", classId)
             if self.cuda then
                 self.model = nn.Sequential():add(self.origModel):add(nn.Select(2,classId)):cuda()
             else

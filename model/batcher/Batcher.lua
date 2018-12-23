@@ -46,6 +46,7 @@ function Batcher:getBatch()
 	local batchLabels = self.labels:narrow(1, startIndex, currBatchSize)
 	local batchData = self.data:narrow(1, startIndex, currBatchSize)
 	self.curStart = endIndex + 1
+	--print("batchData size", batchData:size())
 	return batchLabels, batchData
 end
 

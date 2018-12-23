@@ -15,15 +15,13 @@ require "ConcatTableNoGrad"
 require "TopK"
 require "LogSumExp"
 
-
 cmd = torch.CmdLine()
 
-
-cmd:option('-output_scores',0,'output scores for MAP scores')
+cmd:option('-output_scores',1,'output scores for MAP scores')
 cmd:option('-input_dir','','input dir which contains the list files for train/dev/test')
 cmd:option('-out_dir','','output dir for outputing score files')
 cmd:option('-predicate_name','','output dir for outputing score files')
-cmd:option('-meanModel',0,'to take the mean of scores of each path. Default is max (0)')
+cmd:option('-meanModel',0,'to take the mean of scores of each path. Default is max (0). mean is 1, topk is 2, logsumexp is 3.')
 cmd:option('-gpuid',3,'which gpu to use. -1 = use CPU')
 cmd:option('-epochs_file','','epochs to test')
 cmd:text()
@@ -55,7 +53,7 @@ end
 
 data_files={input_dir..'/test.list',input_dir..'/dev.list'}
 local shuffle = false
-local maxBatches = 150
+local maxBatches = 100
 local minibatch = 32
 local useCuda = true
 local testBatcher = BatcherFileList(data_files[1], minibatch, shuffle, maxBatches, useCuda)
@@ -77,14 +75,16 @@ end
 for i =1, epoch_counter do
 	model_name = models[i]
 	print(model_name)
-	local model_path = out_dir..'/'..model_name
+	local model_path = out_dir..'/'..predicate_name..'/'..model_name
 	local out_dir_p = out_dir..'/'..predicate_name
 	assert(model_path~='','model path isnt set')
 	print('Loading saved model from..'..model_path)
 	predicate_name_to_print = predicate_name..'_'..model_name
 	local check_file = io.open(model_path)
 	if check_file ~= nil then
-		local predictor_net = torch.load(model_path)
+		-- predictor_net and embeddingLayer are both saved in the table
+		local predictor_net = torch.load(model_path)['predictor_net']
+		print("load network:", predictor_net)
 		-- local predictor_net = checkpoint.predictor_net
 		local reducer = nil
 		if(params.meanModel == 1) then
@@ -102,10 +102,11 @@ for i =1, epoch_counter do
 		end
 	
 		--prediction_net = nn.Sequential():add(predictor_net):add(nn.Sigmoid())
-		prediction_net = nn.MapReduce(predictor_net,reducer)
+		prediction_net = nn.MapReduce(predictor_net, reducer)
 		prediction_net = nn.Sequential():add(prediction_net):add(nn.Sigmoid())
 		prediction_net = prediction_net:cuda()
-		prediction_net:evaluate() -- turn on evaluate flag; imp when using dropout
+		--print("prediction net:", prediction_net)
+		--prediction_net:evaluate() -- turn on evaluate flag; imp when using dropout
 		--data_files={input_dir..'/dev.list'}
 		out_files={out_dir_p..'/test.scores.'..model_name,out_dir_p..'/dev.scores.'..model_name} --maintain the sequence of test/train/dev between data and out files table.
 		--out_files={out_dir..'/dev.scores'}
@@ -115,7 +116,7 @@ for i =1, epoch_counter do
 			acc_file = io.open(accuracy_file,'w')
 		end
 		lazyCuda = false
-		numRowsToGPU = 20
+		numRowsToGPU = 1
 		print('STARTING EVALUATION...')
 		if(output_scores) then
 			acc_file:write('STARTING EVALUATION...\n')
@@ -151,7 +152,11 @@ for i =1, epoch_counter do
 				labs = labs:cuda()
 				inputs = inputs:cuda()
 				batch_counter = batch_counter + 1
+				--print("before prediction")
+				--print(inputs:size())
+				-- nn.Select(dim, index) select the index in the dim of the Tensor.
 				local preds = nn.Sequential():add(prediction_net):add(nn.Select(2,classId)):cuda():forward(inputs)
+				--print("after prediction")
 				if(output_scores) then
 					for i=1,count do
 						score = preds[i]
