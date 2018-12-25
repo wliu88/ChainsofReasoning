@@ -1,4 +1,7 @@
-# ChainsofReasoning
+## ChainsofReasoning
+
+This repo is forked from Rajarshi Das's [code](https://github.com/rajarshd/ChainsofReasoning). The original repo is no longer
+maintained. Modifications have been made to ensure the code runs smoothly. Below is a brief description of the code from the original repo:
 
 Code for paper [Chains of Reasoning over Entities, Relations, and Text using
 Recurrent Neural Networks](https://arxiv.org/abs/1607.01426)
@@ -9,46 +12,36 @@ Recurrent Neural Networks](https://arxiv.org/abs/1607.01426)
 - [nn](https://github.com/torch/nn)
 - [rnn](https://github.com/Element-Research/rnn)
 - [optim](https://github.com/torch/optim)
-- [cunn](https://github.com/torch/cunn) (optional: required if you train on GPU)
+- [cunn](https://github.com/torch/cunn)
 
-
-## Instructions for running the code
-
-### Data
-Get the data from [here](http://iesl.cs.umass.edu/downloads/akbc16/). ~~(Note: This might change soon, as I will release an updated version of the dataset)~~
-
-To get the correct format to run the models, 
-```shell
-cd data
-/bin/bash make_data_format.sh <path_to_input_data> <output_dir>
-```
-For example you can run,
-```shell
-cd data
-/bin/bash make_data_format.sh examples/data_small_input examples/data_small_output
-```
-It's important to not put / after directory name.
-
-### Model
-To start training, first checkout [run_scripts/config.sh](run_scripts/config.sh). This defines all the hyperparams and other inputs to the network. After specifying model parameters, to start training run,
-
-```shell
-cd run_sripts
-/bin/bash train.sh ./config.sh
-```
-
-### Path Query Experiment on WordNet (Sec 5.5 of the paper)
-Checkout the instructions of the readme page in [wordnet_experiment/README.md](wordnet_experiment/README.md).
-
-### GPU/CPU settings
-Set gpu_id=0 in run_scripts/config.sh to enable GPU training using CUDA.
-Set gpu_id=-1 in run_scripts/config.sh to disable GPU training.
-
-### Changelog
-- Aug 7 2017: Released the dataset used for the EACL paper. I apologize for the delay.
-- Mar 29 2017: added test scripts.
-
-### Contact:
-Feel free to email me with any questions you have at rajarshi@cs.umass.edu
-
+## Quick Start
+1. Get the data from [here](http://iesl.cs.umass.edu/downloads/akbc16/).
+2. The data need to be formatted as torch tensors to pass to the network. Running the following to prepare the data:
+    ```shell
+    cd data
+    /bin/bash make_data_format.sh <path_to_input_data> <output_dir>
+    ```
+   For example you can run,
+   ```shell
+   cd data
+   /bin/bash make_data_format.sh examples/data_small_input examples/data_small_output
+   ```
+   It's important to not put / after directory name.
+3. Specify parameters in `run_scripts/config.sh`. This file has detailed description for each parameter. 
+   Refer to `data/make_data_format.sh` to find out the dimension of input features. Set the same dimension in the config.
+4. Start training:
+   ```shell
+   cd run_sripts
+   bash train.sh config.sh
+   ```
+5. Use the trained model for evaluation:
+   ```shell
+   cd eval
+   bash get_accuracy_and_trec.sh config.sh
+   ```
+## Understand the Model
+To help understand the network structure, `model/model_structure.txt` is provided. Most of the content is in standard
+torch model format, a little bit is in pseudo-code as the original code uses a custom `MapReduce` class to change the 
+dimension of the input and output for mini-batch training. `model/test_network.lua` is also there to help you test out
+different components of the model and see the dimension of the data. 
 

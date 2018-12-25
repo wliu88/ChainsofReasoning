@@ -196,7 +196,8 @@ local hidden2hidden = nil
 local input2hiddens = {}
 local hidden2hiddens = {} -- table to store the params so that I can initialize them apppropriately.
 
------Define the Architecture-----
+--Important: see test_network_dimension for dimensions of input, output, and intermediate tensors
+-----Define the Architecture----
 if(not loadModel) then
 	print("model is not loaded")
 	predictor_net = nn.Sequential()
@@ -266,13 +267,14 @@ if(not loadModel) then
 		end
 	end
 	predictor_net:add(nn.SplitTable(2))
-
-	for l=1,params.numLayers do
+	-- the Sequencer forwards an input sequence (a table) into an output sequence (a table of the same length).
+	-- Sequencer accepts input: a table of seqlen steps where each time-step is represented by a #batch x #feat Tensor.
+	for l = 1, params.numLayers do
 		rnn_layer = nn.Sequencer(rnn())
 		predictor_net:add(rnn_layer)
 	end
 	predictor_net:add(nn.SelectTable(-1)) --select the last state
-	predictor_net:add(nn.Linear(rnnHidSize,labelDimension))
+	predictor_net:add(nn.Linear(rnnHidSize, labelDimension))
 	print(predictor_net)
 else
 	print('initializing model from '..params.initModel)
@@ -286,13 +288,20 @@ if params.topK == 1 then
 	reducer = nn.Sequential():add(nn.TopK(k,2)):add(nn.Mean(2))
 elseif params.topK == 2 then
 	print('Reducer is LogSumExp')
+	-- Do LogSumExp in the second dimension, which is #paths
+	-- Squeeze the second dimension.
 	reducer = nn.Sequential():add(nn.LogSumExp(2)):add(nn.Squeeze(2))
 else
 	print('Reducer is max pool')
 	reducer = nn.Max(2)
 end
 --training_net = predictor_net
-training_net = nn.Sequential():add(nn.MapReduce(predictor_net,reducer)):add(nn.Sigmoid())
+--Important: 1. MapReduce reshapes input by combining the first and second dimension of the input.
+--           2. It then passes the reshaped input to predictor_net and gets the output
+--			 3. It then reshapes the output back to original dimension of the input
+--           4. It then pass the reshaped output to the reducer and return the result
+training_net = nn.Sequential():add(nn.MapReduce(predictor_net, reducer)):add(nn.Sigmoid())
+-- Sigmoid's range [0,1]
 
 -- test code here
 

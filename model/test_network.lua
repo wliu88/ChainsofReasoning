@@ -19,32 +19,27 @@ require 'Print'
 require 'LogSumExp'
 require "ConcatTableNoGrad"
 
--- embedding
---local embed1 = nn.Sequential()
---embed1:add(nn.SelectTable(-1))
---local embed2 = nn.Sequential()
---embed2:add(nn.SelectTable(-2))
---local cat = nn.ConcatTableNoGrad()
---cat:add(embed1):add(embed2)
---local embeddingLayer = nn.Sequential():add(embed1) --:add(nn.JoinTable(3))
---
---local predictor_net = nn.Sequential()
---predictor_net:add(nn.SplitTable(3)) --:add(embeddingLayer)
---
---print(predictor_net)
---
---local x = torch.randn(2,2,4,10)
---print("x", x)
---
---local y = predictor_net:forward(x)
---print("y", y)
---print("y[1]", y[1])
---print("y[2]", y[2])
+-- Test 1. embedding layers
+local embed1 = nn.Sequential()
+local lookup1 = nn.LookupTable(2, 250)
+embed1:add(nn.SelectTable(1)):add(lookup1)
 
--- test select
-local net = nn.Sequential()
-net:add(nn.SelectTable(-1))
-local x = {torch.randn(2, 2, 10), torch.randn(2,1,10)}
-print("x", x)
-local y = net:forward(x)
-print("y", y)
+local embed2 = nn.Sequential()
+local lookup2 = nn.LookupTable(2, 50)
+embed2:add(nn.SelectTable(2)):add(lookup2)
+
+local cat = nn.ConcatTableNoGrad()
+cat:add(embed1):add(embed2)
+local embeddingLayer = nn.Sequential():add(cat):add(nn.JoinTable(3))
+
+local predictor_net = nn.Sequential()
+predictor_net:add(nn.SplitTable(3)):add(embeddingLayer)
+
+print(predictor_net)
+-- the original input dimension is #entity pairs x #paths x #steps in a path x #features for each step
+-- after MapReduce. The input dimension is reshaped to (#entity pairs * #paths) x #steps in a path x #features for each step
+local x = torch.Tensor(4,8,9):fill(1)
+print("x", x:size())
+
+local y = predictor_net:forward(x)
+print("y", y:size())

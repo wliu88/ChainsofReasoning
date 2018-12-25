@@ -18,7 +18,9 @@ function MapReduce:updateOutput(input)
 	-- print('inputs size')
 	-- print (input:size())
 	self.inputSize = input:size()
+	-- number of paths per entity pair
 	local numPerExample = self.inputSize[2]
+	-- number of entity pairs
 	local minibatchSize = self.inputSize[1]
 	self.sizes = self.sizes or torch.LongStorage(self.inputSize:size() -1)
 	self.sizes[1] = minibatchSize*numPerExample
@@ -26,6 +28,8 @@ function MapReduce:updateOutput(input)
 		self.sizes[i] = self.inputSize[i+1]
 	end
 	self.reshapedInput = input:view(self.sizes)
+	--print("before reshaping", input:size())
+	--print("after reshaping", self.reshapedInput:size())
 	self.mapped = self.mapper:updateOutput(self.reshapedInput)
 
 	self.sizes3 = self.mapped:size()
