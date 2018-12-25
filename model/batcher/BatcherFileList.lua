@@ -8,14 +8,22 @@ local BatcherFileList = torch.class('BatcherFileList')
 --       than the maxBatches, in one iteration of batches from 1 to endIndex, some batches will not be visited.
 
 function BatcherFileList:__init(dataDir, batchSize, shuffle, maxBatches, useCuda)
-	-- for evaluation
-	--dataFile = dataDir
-	--fileList = dataFile
-	-- only works for dataDir ='/home/weiyu/Research/Path_Baselines/CVSM/ChainsofReasoning/data/examples/data_small_output/_music_artist_genre/test.list'
-	--dataDir = string.sub(dataFile, 1, 111)
-
-	-- for training
-	fileList = dataDir .. 'train.list'
+	fileList = dataDir
+	local t={}
+	local i=1
+	for str in string.gmatch(dataDir, "([^"..'/'.."]+)") do
+		t[i] = str
+		i = i + 1
+	end
+	dataDir = ''
+	for k, v in pairs(t) do
+		if i == 2 then
+			break
+		end
+		dataDir = dataDir .. '/' .. v
+		i = i - 1
+	end
+	dataDir = dataDir .. '/'
 
 	self.doShuffle = shuffle
 	self.batchSize = batchSize

@@ -8,7 +8,7 @@ output_dir="results"
 experiment_file=$experiment_dir/0.txt
 output_dir=$output_dir/lse
 # it's important to put / after the last directory.
-data_dir='/home/weiyu/Research/Path_Baselines/CVSM/ChainsofReasoning/data/examples/data_small_output/_music_artist_genre/'
+data_dir='/home/weiyu/Research/Path_Baselines/CVSM/ChainsofReasoning/data/examples/data_small_output/_music_artist_genre/train.list'
 # which gpu to use. -1 = use CPU.
 gpu_id=0
 
