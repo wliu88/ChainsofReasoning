@@ -9,7 +9,7 @@ import gzip
 parser = argparse.ArgumentParser()
 parser.add_argument('-i','--input_dir', required=True)
 parser.add_argument('-d','--output_dir''', required=True)
-parser.add_argument('-o','--only_relation', required=True, help="This option to be used when data doesnot have entities")
+parser.add_argument('-o','--only_relation', required=True, help="This option to be used when data does not have entities")
 parser.add_argument('-g','--get_only_relation', required=True, help="This option to be used when data has entities but we only want to extract relations")
 parser.add_argument('-e','--ec2_instance', required=True)
 parser.add_argument('-m','--max_path_length', required=True)

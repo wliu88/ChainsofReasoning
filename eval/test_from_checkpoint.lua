@@ -147,6 +147,7 @@ for i =1, epoch_counter do
 			counter=0
 			local batch_counter = 0
 			while(true) do
+				-- labs means labels
 				local labs,inputs,count,classId = batcher:getBatch()		
 				if(inputs == nil) then break end
 				labs = labs:cuda()
@@ -166,6 +167,7 @@ for i =1, epoch_counter do
 					end
 				end
 				-- preds,pi = torch.max(preds,2)
+				-- gt compares every element in preds with 0.5, returning 1 if the element is larger than 0.5, o.w returning 0.
 				pi = preds:gt(0.5):typeAs(labs)
 				local correct = pi:eq(labs):sum()
 				total_correct = total_correct + correct

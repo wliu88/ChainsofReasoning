@@ -16,6 +16,7 @@ Recurrent Neural Networks](https://arxiv.org/abs/1607.01426)
 
 ## Quick Start
 1. Get the data from [here](http://iesl.cs.umass.edu/downloads/akbc16/).
+
 2. The data need to be formatted as torch tensors to pass to the network. Running the following to prepare the data:
     ```shell
     cd data
@@ -27,18 +28,31 @@ Recurrent Neural Networks](https://arxiv.org/abs/1607.01426)
    /bin/bash make_data_format.sh examples/data_small_input examples/data_small_output
    ```
    It's important to not put / after directory name.
+   
 3. Specify parameters in `run_scripts/config.sh`. This file has detailed description for each parameter. 
    Refer to `data/make_data_format.sh` to find out the dimension of input features. Set the same dimension in the config.
+
 4. Start training:
    ```shell
    cd run_sripts
    bash train.sh config.sh
    ```
-5. Use the trained model for evaluation:
+
+5. Use the trained model for evaluation. Specify paramters in `eval/config.sh`. Notice an epoch file is needed. It
+   specifies the model from which iteration will be used. For example, this file can be simply created by running
+   `echo "model-20" > test_models.txt`
    ```shell
    cd eval
    bash get_accuracy_and_trec.sh config.sh
    ```
+   
+6. After evaluation, the results can be found in the folder specified in `eval/config.sh`. There will be an `accuracy.txt`
+   showing the percentage of correctly predicting whether the target relation exists between entity pairs. There will be
+   another file showing the predicted score and the ground truth label for every entity pair. Each line has the format of
+   "[target_relation]\t[entity_pair_counter]\t[predicted_score]\t[ground_truth_label]\n". This file can be used to compute
+   MAP and MRR for the relation. 
+
+
 ## Understand the Model
 To help understand the network structure, `model/model_structure.txt` is provided. Most of the content is in standard
 torch model format, a little bit is in pseudo-code as the original code uses a custom `MapReduce` class to change the 
