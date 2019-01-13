@@ -49,7 +49,7 @@ Recurrent Neural Networks](https://arxiv.org/abs/1607.01426)
 6. After evaluation, the results can be found in the folder specified in `eval/config.sh`. There will be an `accuracy.txt`
    showing the percentage of correctly predicting whether the target relation exists between entity pairs. There will be
    another file showing the predicted score and the ground truth label for every entity pair. Each line has the format of
-   "[target_relation]\t[entity_pair_counter]\t[predicted_score]\t[ground_truth_label]\n". This file can be used to compute
+   `"[target_relation]\t[entity_pair_counter]\t[predicted_score]\t[ground_truth_label]\n"`. This file can be used to compute
    MAP and MRR for the relation. 
 
 
