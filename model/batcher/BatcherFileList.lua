@@ -11,10 +11,12 @@ function BatcherFileList:__init(dataDir, batchSize, shuffle, maxBatches, useCuda
 	fileList = dataDir
 	local t={}
 	local i=1
+	-- hardcode if both test and dev
 	for str in string.gmatch(dataDir, "([^"..'/'.."]+)") do
 		t[i] = str
 		i = i + 1
 	end
+
 	dataDir = ''
 	for k, v in pairs(t) do
 		if i == 2 then

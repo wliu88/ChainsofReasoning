@@ -5,23 +5,23 @@ host=`hostname`
 createExptDir=1 #make it 0 if you dont want to create a directory and only print stuff
 experiment_dir="/home/weiyu/Research/Path_Baselines/CVSM/ChainsofReasoning"
 output_dir="results"
+predicate_name="hyponym"
 experiment_file=$experiment_dir/0.txt
-output_dir=$output_dir/lse
-# it's important to put / after the last directory.
-data_dir='/home/weiyu/Research/Path_Baselines/CVSM/ChainsofReasoning/data/examples/data_small_output/_music_artist_genre/train.list'
-# which gpu to use. -1 = use CPU.
+data_dir='/home/weiyu/Research/Path_Baselines/CVSM/ChainsofReasoning/data/examples/data_small_output/hyponym/train.list'
+# which gpu to use. -1 = use cpu. must use gpu
 gpu_id=0
 
 # 2. Features
-numEntityTypes=7
-includeEntityTypes=1
-includeEntity=1
+# numEntityTypes and numFeatureTemplates don't matter if both includeEntityTypes and includeEntity are set to 0
+numEntityTypes=0 #7
+includeEntityTypes=0 #1
+includeEntity=0 #1
 numEpoch=20
 # the number of features should be 1 + 1 (if include entity) + number of entity types (if include entity types)
-numFeatureTemplates=9
+numFeatureTemplates=1 #9
 
 # 3. Vocabs
-relationVocabSize=51390
+relationVocabSize=37 #51390
 entityVocabSize=1542690
 entityTypeVocabSize=2218
 

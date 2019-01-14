@@ -51,7 +51,8 @@ if(output_scores) then
 	assert(out_dir~='' and predicate_name~='','if output_scores is set, then please specify an out_dir and predicate_name')
 end
 
-data_files={input_dir..'/test.list',input_dir..'/dev.list'}
+-- Important: only evaluate test split for now
+data_files={input_dir..'/test.list', input_dir..'/dev.list'}
 local shuffle = false
 local maxBatches = 100
 local minibatch = 32
@@ -81,6 +82,7 @@ for i =1, epoch_counter do
 	print('Loading saved model from..'..model_path)
 	predicate_name_to_print = predicate_name..'_'..model_name
 	local check_file = io.open(model_path)
+	print(check_file)
 	if check_file ~= nil then
 		-- predictor_net and embeddingLayer are both saved in the table
 		local predictor_net = torch.load(model_path)['predictor_net']

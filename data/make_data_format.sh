@@ -10,11 +10,11 @@ mainDir='/home/weiyu/Research/Path_Baselines/CVSM/ChainsofReasoning'
 data_dir=$1
 out_dir=$2
 preprocessingDir=${mainDir}/'data'
-only_relation=0 #this means that the input release_directory has only relations.
+only_relation=1 #0 #this means that the input paths have only relations.
 qsub_log_dir=$preprocessingDir/qsub_log
 max_path_length=8
 num_entity_types=7
-get_only_relations=0 #usually 0, if 1 then get only relations
+get_only_relations=0 #0 #usually 0, if 1 then get only relations
 
 echo "max_path_length "$max_path_length
 echo "num_entity_types "$num_entity_types
@@ -23,8 +23,9 @@ echo "get_only_relations" $get_only_relations
 mkdir -p $out_dir
 mkdir -p $qsub_log_dir
 counter=0
+
 # search file started with _
-for r in `ls ${data_dir} | grep ^_`
+for r in `ls ${data_dir}`                #| grep ^_`
 do
 	counter=$((counter+1))
 	relation_dir=$data_dir/$r
@@ -39,3 +40,5 @@ do
 	echo $cmd1
 	$cmd1 & 2>>$qsub_log_dir/log.err
 done
+
+echo "Done Done"

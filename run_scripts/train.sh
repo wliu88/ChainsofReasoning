@@ -50,11 +50,10 @@ echo "entityTypeVocabSize" $entityTypeVocabSize
 echo "dropout" $dropout
 
 machine_name=`hostname`
-predicate_name=`basename ${data_dir}`
 script_dir="$experiment_dir/run_scripts"
 tokFeats=0
 
-output_dir_t=${output_dir}/${time_stamp}
+output_dir_t=${output_dir}
 exptDir=${output_dir_t}/${predicate_name}
 log=$exptDir/log.txt #where everything will be logged
 modelBase=$exptDir/model

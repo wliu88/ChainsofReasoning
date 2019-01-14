@@ -25,49 +25,51 @@ MAX_POSSIBLE_LENGTH_PATH = int(args.max_path_length)
 NUM_ENTITY_TYPES_SLOTS = int(args.max_num_types)
 
 #gunzip the files in the vocab directory and plug it in; alternatively you can create your own vocab too.
-entity_type_vocab_file = '../vocab/entity_type_vocab.txt.gz'
-relation_vocab_file = '../vocab/relation_vocab.txt.gz'
-entity_vocab_file = '../vocab/entity_vocab.txt.gz'
-entity_type_map_file = '../vocab/entity_to_list_type.json.gz'
-label_vocab_file='../vocab/domain-label.gz'
+entity_type_vocab_file = '../vocab/entity_type_vocab.txt'
+relation_vocab_file = '../vocab/relation_vocab.txt'
+entity_vocab_file = '../vocab/entity_vocab.txt'
+entity_type_map_file = '../vocab/entity_to_list_type.json'
+label_vocab_file= '../vocab/domain-label'
 
 if not isOnlyRelation:
-	print 'reading entity type vocab'
+	print('reading entity type vocab')
 	entity_type_vocab = {}	
-	with gzip.open(entity_type_vocab_file,'r') as vocab:
+	with open(entity_type_vocab_file,'r') as vocab:
 		entity_type_vocab = json.load(vocab)
-	print 'Done reading entity type vocab'
+	print('Done reading entity type vocab')
 
-	print 'reading entity vocab'
+	print('reading entity vocab')
 	entity_vocab = {}
-	with gzip.open(entity_vocab_file,'r') as vocab:
+	with open(entity_vocab_file,'r') as vocab:
 		entity_vocab = json.load(vocab)
-	print 'Done reading entity vocab'
+	print('Done reading entity vocab')
 
-	print 'reading entity to type list'
+	print('reading entity to type list')
 	entity_type_map = {}
-	with gzip.open(entity_type_map_file,'r') as f:
+	with open(entity_type_map_file,'r') as f:
 		entity_type_map = json.load(f)
-	print ' Done reading entity to type list'
+	print(' Done reading entity to type list')
 
-print 'reading relation vocab'
+print("hello world")
+
+print('reading relation vocab: ' + relation_vocab_file)
 relation_vocab = {}
-with gzip.open(relation_vocab_file,'r') as vocab:
+with open(relation_vocab_file,'r') as vocab:
 	relation_vocab = json.load(vocab)
-print 'Done reading relation vocab'
+print('Done reading relation vocab')
 
 #read label2int
-print 'Reading label vocab'
-with gzip.open(label_vocab_file,'r') as label_vocab:
+print('Reading label vocab')
+with open(label_vocab_file,'r') as label_vocab:
 	label2int = json.load(label_vocab)
-print 'Done reading label vocab'
+print('Done reading label vocab')
 
 # this block of code gets the maximum length of paths
 max_length = -1
 train_files = ['/positive_matrix.tsv.translated','/negative_matrix.tsv.translated','/dev_matrix.tsv.translated','/test_matrix.tsv.translated'] ##dont change the ordering or remove entries. This is bad coding, I know.
 for counter,input_file in enumerate(train_files):
 	input_file = input_dir+input_file
-	print 'Processing '+input_file
+	print('Processing '+input_file)
 	with open(input_file) as f:
 		for entity_count, line in enumerate(f): #each entity pair
 			split = line.split('\t')
@@ -83,7 +85,7 @@ for counter,input_file in enumerate(train_files):
 					max_length = path_len
 print(max_length)
 max_length = min(MAX_POSSIBLE_LENGTH_PATH,max_length)
-print 'Max length is '+str(max_length)
+print('Max length is '+str(max_length))
 
 # length is the maximum number of entity types for an entity
 def get_entity_types_in_order(entity_types, length):
@@ -158,7 +160,7 @@ else:
 
 def get_padding(num_pad_features):
 	path_feature_vector=''
-	for i in xrange(num_pad_features):
+	for i in range(num_pad_features):
 		if path_feature_vector=='':
 			path_feature_vector = pad_feature
 		else:
@@ -285,5 +287,5 @@ for input_file_counter, input_file_name in enumerate(input_files):
 				with open(output_file_with_pathlen,'a') as out:
 					out.write(output_line+'\n')
 			if entity_count % 100 == 0:
-				print 'Processed '+str(entity_count)+' entity pairs'
+				print('Processed '+str(entity_count)+' entity pairs')
 print("Missed entity pair count "+str(missed_entity_count))

@@ -29,8 +29,9 @@ Recurrent Neural Networks](https://arxiv.org/abs/1607.01426)
    ```
    It's important to not put / after directory name.
    
-3. Specify parameters in `run_scripts/config.sh`. This file has detailed description for each parameter. 
-   Refer to `data/make_data_format.sh` to find out the dimension of input features. Set the same dimension in the config.
+3. Specify parameters in `run_scripts/config.sh`. This file has detailed descriptions for all parameters. For parameters
+   in `2. Features` section, see `data/make_data_format.sh` to find out the dimension of input features. To set 
+   paramters in `3. Vocabs` section, see files in `vocab` directory.
 
 4. Start training:
    ```shell
