@@ -6,6 +6,13 @@ maintained. Modifications have been made to ensure the code runs smoothly. Below
 Code for paper [Chains of Reasoning over Entities, Relations, and Text using
 Recurrent Neural Networks](https://arxiv.org/abs/1607.01426)
 
+##Important Notes:
+1. The original code interchanges class labels (1 and 0) of examples by adding one in `data/int2torch.lua` then multiplying -1
+and adding 2 in `model/batcher/Batcher.lua`. When negative examples are more than positive examples, by flipping the the
+class labels, the MAP calculated for positive examples will be higher. 
+
+2. Training accuracy can be evaluated by changing input files in `eval/test_from_checkpoint.lua` around line 55. 
+
 ##Dependencies
 
 - [torch](https://github.com/torch/torch7)
@@ -25,7 +32,7 @@ Recurrent Neural Networks](https://arxiv.org/abs/1607.01426)
    For example you can run,
    ```shell
    cd data
-   /bin/bash make_data_format.sh examples/data_small_input examples/data_small_output
+   bash make_data_format.sh examples/data_small_input examples/data_small_output
    ```
    It's important to not put / after directory name.
    

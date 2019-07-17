@@ -158,6 +158,7 @@ for i =1, epoch_counter do
 				--print("before prediction")
 				--print(inputs:size())
 				-- nn.Select(dim, index) select the index in the dim of the Tensor.
+
 				local preds = nn.Sequential():add(prediction_net):add(nn.Select(2,classId)):cuda():forward(inputs)
 				--print("after prediction")
 				if(output_scores) then

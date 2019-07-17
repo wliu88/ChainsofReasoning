@@ -16,7 +16,7 @@ gpu_id=0
 numEntityTypes=0 #7
 includeEntityTypes=0 #1
 includeEntity=0 #1
-numEpoch=20
+numEpoch=50
 # the number of features should be 1 + 1 (if include entity) + number of entity types (if include entity types)
 numFeatureTemplates=1 #9
 
@@ -39,7 +39,7 @@ dropout=0.3
 
 rnnHidSize=250
 relationEmbeddingDim=250
-entityTypeEmbeddingDim=100
+entityTypeEmbeddingDim=50
 entityEmbeddingDim=50
 
 # the name of this parameter is confusing. This sets the pooling method. 0 is max; 1 is top K , 2 is LogSumExp

@@ -3,7 +3,7 @@ package.path = package.path ..';../?.lua'
 require 'BatcherFileList'
 
 -- / after the last directory is needed
-local fileList = '/home/weiyu/Research/Path_Baselines/CVSM/ChainsofReasoning/data/examples/data_small_output/_music_artist_genre/'
+local fileList = '/home/weiyu/Research/Path_Baselines/CVSM/ChainsofReasoning/data/examples/test_output/_architecture_structure_address/train.list'
 --'/iesl/local/rajarshi/data_full_max_length_8_small//combined_train_list/train.list'
 
 batchSize = 1000
@@ -48,12 +48,14 @@ print("visited batches of lengths", visited_batches)
 
 batcherFileList:reset()
 local count1 = 0
+visited_batches = {}
 while(true)
 do
 	local  labels, data = batcherFileList:getBatch()
 	if labels == nil then
 		break
 	end
+	table.insert(visited_batches, data:size(2))
 	-- print(labels:size())
 	-- print(data:size())
 	count1 = count1 + 1
@@ -61,6 +63,7 @@ do
 	-- print(count1)
 end
 assert(count == count1)
+print("visited batches of lengths", visited_batches)
 print(string.format('test %d passed!',test_counter))
 test_counter = test_counter + 1
 

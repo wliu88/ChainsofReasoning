@@ -37,7 +37,7 @@ do
 	do
 	    echo $ff
 		out=`echo $ff | sed 's|.int$||'`.torch
-		$int2torch -input $ff -output $out -tokenLabels 0 -tokenFeatures 1 -addOne 1 #convert to torch format
+	    $int2torch -input $ff -output $out -tokenLabels 0 -tokenFeatures 1 -addOne 1 #convert to torch format
 		if [ $? -ne 0 ]
 		then
 			echo 'int2torch failed!'1>&2

@@ -307,6 +307,7 @@ training_net = nn.Sequential():add(nn.MapReduce(predictor_net, reducer)):add(nn.
 
 -- end of test code
 local classId = 1
+-- Binary Cross Entropy
 criterion = nn.BCECriterion()
 -- criterion = nn.MaskZeroCriterion(criterion,1)
 if(useCuda or lazyCuda) then
@@ -397,7 +398,8 @@ local evaluator = nil
 -- table.insert(callbacks,evaluationCallback)
 
 if(params.model  ~= "") then
-	local saver = function(i) 
+	local saver = function(i)
+		--if (i >=50) then
 		local file = params.model.."-"..i
 		print('saving to '..file)
 		local toSave = {
@@ -405,6 +407,7 @@ if(params.model  ~= "") then
 			predictor_net = predictor_net,
 		}
 		torch.save(file,toSave)
+		--end
 	end
 	if createExptDir then
 		local savingCallback = OptimizerCallback(params.saveFrequency,saver,'saving')

@@ -51,6 +51,7 @@ function BatcherFileList:__init(dataDir, batchSize, shuffle, maxBatches, useCuda
 		end
 	end
 	print((string.format(' Done reading file list from %s',fileList)))
+
 	self.maxBatches = math.min(maxBatches, self.numBatchers)
 	self.startIndex = 1
 	self.endIndex = self.maxBatches

@@ -117,7 +117,8 @@ function MyOptimizer:train(trainBatcher)
         count = 0
         while(true) do
             local minibatch_targets,minibatch_inputs, num, classId = trainBatcher:getBatch()
-            --print("minibatch input size", minibatch_inputs:size())
+
+            -- print("minibatch input size", minibatch_inputs:size())
             --print("classId", classId)
             if self.cuda then
                 self.model = nn.Sequential():add(self.origModel):add(nn.Select(2,classId)):cuda()
@@ -192,6 +193,7 @@ function MyOptimizer:trainBatch(inputs, targets)
         local df_do = nil
         local err = nil
         err = self.criterion:forward(output, targets)
+        -- print("input size", inputs:size(), "error", err)
         df_do = self.criterion:backward(output, targets)
         --print("calculate criterion successful")
         self.model:backward(inputs, df_do)

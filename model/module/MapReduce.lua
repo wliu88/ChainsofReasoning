@@ -14,7 +14,7 @@ function MapReduce:__init(mapper,reducer)
 end
 
 function MapReduce:updateOutput(input)
-	--first, reshape the data by pulling the second dimension into the first
+	-- first, reshape the data by pulling the second dimension into the first
 	-- print('inputs size')
 	-- print (input:size())
 	self.inputSize = input:size()
@@ -31,6 +31,8 @@ function MapReduce:updateOutput(input)
 	--print("before reshaping", input:size())
 	--print("after reshaping", self.reshapedInput:size())
 	self.mapped = self.mapper:updateOutput(self.reshapedInput)
+	-- print("size of output of mapper")
+	-- print(self.mapped:size())
 
 	self.sizes3 = self.mapped:size()
 
@@ -44,6 +46,8 @@ function MapReduce:updateOutput(input)
 	-- print('size after reducing')
 	-- print(self.sizes2)
 	self.mappedAndReshaped = self.mapped:view(self.sizes2)
+	-- print('mapper reshaped output size')
+	-- print(self.mappedAndReshaped:size())
 	self.output = self.reducer:updateOutput(self.mappedAndReshaped)
 	return self.output
 

@@ -33,7 +33,7 @@ label_vocab_file= '../vocab/domain-label'
 
 if not isOnlyRelation:
 	print('reading entity type vocab')
-	entity_type_vocab = {}	
+	entity_type_vocab = {}
 	with open(entity_type_vocab_file,'r') as vocab:
 		entity_type_vocab = json.load(vocab)
 	print('Done reading entity type vocab')
@@ -49,8 +49,6 @@ if not isOnlyRelation:
 	with open(entity_type_map_file,'r') as f:
 		entity_type_map = json.load(f)
 	print(' Done reading entity to type list')
-
-print("hello world")
 
 print('reading relation vocab: ' + relation_vocab_file)
 relation_vocab = {}
@@ -80,14 +78,15 @@ for counter,input_file in enumerate(train_files):
 			for path in split:
 				path_len = len(path.split('-'))
 				if  not isOnlyRelation:
-					path_len = path_len/2 + 2
+					path_len = int(path_len/2) + 2
 				if path_len > max_length:
 					max_length = path_len
 print(max_length)
-max_length = min(MAX_POSSIBLE_LENGTH_PATH,max_length)
+max_length = min(MAX_POSSIBLE_LENGTH_PATH, max_length)
 print('Max length is '+str(max_length))
 
-# length is the maximum number of entity types for an entity
+# function input "length" is the maximum number of entity types for an entity
+# this function return a string of ints separated by ","
 def get_entity_types_in_order(entity_types, length):
 	assert(length <= len(entity_types))
 	type_int_list = []
@@ -102,7 +101,7 @@ def get_entity_types_in_order(entity_types, length):
 	type_int_list = type_int_list[::-1] #reverse
 	return ','.join(str(i) for i in type_int_list)
 
-#will be called on data with just relations
+# will be called on data with just relations
 def get_feature_vector_only_relation(relation):
 	feature_vector=''
 	#Now add the id for the relation
@@ -118,30 +117,42 @@ def get_feature_vector(prev_entity, relation):
 	#get the entity types of the vector
 	if prev_entity in entity_type_map:
 		entity_types = entity_type_map[prev_entity]
-		# if len(entity_types) <= NUM_ENTITY_TYPES_SLOTS:
-		#create the feature vector
-		length = min(NUM_ENTITY_TYPES_SLOTS, len(entity_types))
-		extra_padding_length = NUM_ENTITY_TYPES_SLOTS - len(entity_types)
-		for i in xrange(extra_padding_length):
-			type_feature_vector = type_feature_vector + str(entity_type_vocab['#PAD_TOKEN']) +','
-		type_feature_vector = type_feature_vector + get_entity_types_in_order(entity_types, length) + ','
+		if len(entity_types) == 0:
+			for i in range(NUM_ENTITY_TYPES_SLOTS):#we dont have type for this entity the feature vector would be all UNKNOWN TYPE token
+				# Weiyu: I replaced #UNK_ENTITY_TYPE with #PAD_TOKEN
+				type_feature_vector = type_feature_vector + str(entity_type_vocab['#PAD_TOKEN']) +',' #str(entity_type_vocab['#UNK_ENTITY_TYPE']) +','
+		else:
+			# if len(entity_types) <= NUM_ENTITY_TYPES_SLOTS:
+			#create the feature vector
+			length = min(NUM_ENTITY_TYPES_SLOTS, len(entity_types))
+			extra_padding_length = NUM_ENTITY_TYPES_SLOTS - len(entity_types)
+			for i in range(extra_padding_length):
+				type_feature_vector = type_feature_vector + str(entity_type_vocab['#PAD_TOKEN']) +','
+			# Weiyu: I change padding for types from pre to post
+			# type_feature_vector = type_feature_vector + get_entity_types_in_order(entity_types, length) + ','
+			type_feature_vector = get_entity_types_in_order(entity_types, length) + ',' + type_feature_vector
 	else:
-		for i in xrange(NUM_ENTITY_TYPES_SLOTS):#we dont have type for this entity the feature vector would be all UNKNOWN TYPE token
-			type_feature_vector = type_feature_vector + str(entity_type_vocab['#UNK_ENTITY_TYPE']) +','
+		for i in range(NUM_ENTITY_TYPES_SLOTS):#we dont have type for this entity the feature vector would be all UNKNOWN TYPE token
+			# Weiyu: I replaced #UNK_ENTITY_TYPE with #PAD_TOKEN
+			type_feature_vector = type_feature_vector + str(entity_type_vocab['#PAD_TOKEN']) +',' # str(entity_type_vocab['#UNK_ENTITY_TYPE']) +','
 	#NEW: add the id for the entity
 	if prev_entity in entity_vocab:
 		type_feature_vector = type_feature_vector + str(entity_vocab[prev_entity])+','
 	else:
-		type_feature_vector = type_feature_vector + str(entity_vocab['#UNK_ENTITY'])+','
+		try:
+			type_feature_vector = type_feature_vector + str(entity_vocab['#UNK_ENTITY'])+','
+		except:
+			raise Exception(prev_entity)
 	#Now add the id for the relation
 	if relation in relation_vocab:
 		type_feature_vector = type_feature_vector + str(relation_vocab[relation])
 	else:
 		type_feature_vector = type_feature_vector + str(relation_vocab['#UNK_RELATION'])
+
 	assert(len(type_feature_vector.split(','))==NUM_ENTITY_TYPES_SLOTS+2) #+2 - because of entity and entity_type
 	return type_feature_vector
 
-#form the feature for PAD token for a path using PAD token of entity, relation, entity type.
+# Create the feature for PAD token for a path using PAD token of entity, relation, entity type.
 # pad_feature = relation_pad_token (if only using relation
 # pad_feature = type_pad_token, type_pad_token, entity_pad_token, relation_pad_token (if not only using relation and
 # max number of entity type is 2.
@@ -150,10 +161,10 @@ pad_feature=''
 if isOnlyRelation or getOnlyRelation:
 	pad_feature = str(relation_vocab['#PAD_TOKEN'])
 else:
-	for i in xrange(NUM_ENTITY_TYPES_SLOTS):
+	for i in range(NUM_ENTITY_TYPES_SLOTS):
 		if i==0:
 			pad_feature = pad_feature + str(entity_type_vocab['#PAD_TOKEN'])
-		else:	
+		else:
 			pad_feature = pad_feature + ',' + str(entity_type_vocab['#PAD_TOKEN'])
 	pad_feature = pad_feature + ',' + str(entity_vocab['#PAD_TOKEN'])
 	pad_feature = pad_feature + ',' + str(relation_vocab['#PAD_TOKEN'])
@@ -167,15 +178,15 @@ def get_padding(num_pad_features):
 			path_feature_vector = path_feature_vector + ' ' + pad_feature
 	return path_feature_vector
 
-missed_entity_count = 0 #entity pair might be missed when we are putting constraints on the max length of the path.
+missed_entity_count = 0 #entity pair might be ignored when we are putting constraints on the max length of the path.
 input_files = ['/positive_matrix.tsv.translated','/negative_matrix.tsv.translated','/dev_matrix.tsv.translated','/test_matrix.tsv.translated']
 #clean the directory
 dirs = ['train','dev','test']
 for directory in dirs:
 	output_dir = out_dir+'/'+directory
 	if not os.path.exists(output_dir):
-	    os.makedirs(output_dir)
-	for f in os.listdir(output_dir):	
+		os.makedirs(output_dir)
+	for f in os.listdir(output_dir):
 		if os.path.exists(output_dir+'/'+f):
 			os.remove(output_dir+'/'+f)
 
@@ -208,11 +219,13 @@ for input_file_counter, input_file_name in enumerate(input_files):
 			output_line=''
 			split = line.split('\t')
 			if len(split) == 4:
+				# only test and dev have label for each entity pair.
 				assert(input_file_counter == 2 or input_file_counter == 3)
-				label = str(split[3].strip()) 
+				label = str(split[3].strip())
 			e1 = split[0].strip()
 			e2 = split[1].strip()
 			prev_entity = e1
+			# path are seperated by ###
 			split = split[2].split('###')
 			flag = 0
 			for path_counter, each_path in enumerate(split):
@@ -220,28 +233,28 @@ for input_file_counter, input_file_name in enumerate(input_files):
 				each_path = each_path.strip()
 				relation_types = each_path.split('-')
 				path_len = len(relation_types)
-				if  not isOnlyRelation:
-					path_len = path_len/2 + 2 #so 3 months after writing the code, I was wondering why the + 2 - the answer is even if for a one hop path e1 r1 e2 we consider (e1, r1)->(e2, UNK_RELATION); hence path length is atleast 2
+				if not isOnlyRelation:
+					path_len = int(path_len/2) + 2 #so 3 months after writing the code, I was wondering why the + 2 - the answer is even if for a one hop path e1 r1 e2 we consider (e1, r1)->(e2, UNK_RELATION); hence path length is atleast 2
 				if path_len > max_length:
 					continue
 				num_pad_features = max_length - path_len
-				if getOnlyRelation and not isOnlyRelation: 
+				if getOnlyRelation and not isOnlyRelation:
 					num_pad_features = num_pad_features + 1 #because we dont have entity2,#end_relation term and hence the assert statement at the end assert(len(path_feature_vector.split(' ')) == max_length) fails
 				path_feature_vector = get_padding(num_pad_features) #all type_feat_vector separated by space
-				for token_counter, token in enumerate(relation_types): #every node in the path
-					if  not isOnlyRelation:
+				# iterating through every node in the path
+				for token_counter, token in enumerate(relation_types):
+					if not isOnlyRelation:
 						if token_counter%2 == 0: #relation
 							#form the feature vector of entity type
 							relation = token
 							if getOnlyRelation:
-								type_feature_vector = get_feature_vector_only_relation(relation)		
+								type_feature_vector = get_feature_vector_only_relation(relation)
 							else:
 								type_feature_vector = get_feature_vector(prev_entity, relation)
 							if token_counter == 0 and path_feature_vector == '':
 								path_feature_vector = path_feature_vector + type_feature_vector
 							else:
 								path_feature_vector = path_feature_vector + ' ' + type_feature_vector
-							
 						else: #this is an entity
 							prev_entity = token
 					else:
@@ -251,7 +264,7 @@ for input_file_counter, input_file_name in enumerate(input_files):
 							path_feature_vector = path_feature_vector + type_feature_vector
 						else:
 							path_feature_vector = path_feature_vector + ' ' + type_feature_vector
-				if  not isOnlyRelation and not getOnlyRelation:			
+				if not isOnlyRelation and not getOnlyRelation:
 					#take care of e2 now
 					type_feature_vector = get_feature_vector(e2, '#END_RELATION')
 					#add to the path_feature_vector
