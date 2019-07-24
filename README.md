@@ -20,6 +20,7 @@ class labels, the MAP calculated for positive examples will be higher.
 - [rnn](https://github.com/Element-Research/rnn)
 - [optim](https://github.com/torch/optim)
 - [cunn](https://github.com/torch/cunn)
+- util
 
 ## Quick Start
 1. Get the data from [here](http://iesl.cs.umass.edu/downloads/akbc16/).
